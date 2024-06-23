@@ -6,14 +6,15 @@ from config import Config
 import os
 
 class GUI:
-    def __init__(self, code_runner: CodeRunner):
-        self.root = tk.Tk()
+    def __init__(self, root: tk.Tk, code_runner: CodeRunner, config: Config):
+        self.root = root
         self.code_runner = code_runner
-        self.config = Config()
+        self.config = config
         self.setup_gui()
 
+
     def setup_gui(self):
-        self.root.title("Python Code Runner Lite v1.6.3.1")
+        self.root.title("Python Code Runner Lite v1.7 - Refactored Code - Live Console Streaming")
         self.root.geometry("900x700")
 
         self.create_menus()
@@ -95,13 +96,23 @@ class GUI:
         self.result_text.pack(padx=10, pady=10, fill=tk.BOTH, expand=True)
         self.result_text.config(state=tk.DISABLED)
 
-    def create_status_bar(self):
-        self.status_bar = tk.Label(self.root, text="Ready", bd=1, relief=tk.SUNKEN, anchor=tk.W)
-        self.status_bar.pack(side=tk.BOTTOM, fill=tk.X)
+    def create_result_text(self):
+        self.result_text = scrolledtext.ScrolledText(self.root, height=15, width=70, bg="black", fg="white")
+        self.result_text.pack(padx=10, pady=10, fill=tk.BOTH, expand=True)
+        self.result_text.config(state=tk.DISABLED)
 
-    def update_status(self, message: str):
-        self.status_bar.config(text=message)
-        self.root.update_idletasks()
+    def update_result_text(self, message: str, state: str):
+        self.result_text.config(state=tk.NORMAL)
+        self.result_text.insert(tk.END, message)
+        self.result_text.see(tk.END)
+        self.result_text.config(state=tk.DISABLED)
+        
+        if "successfully" in message.lower():
+            self.update_status("Code execution completed successfully.")
+        elif "error" in message.lower():
+            self.update_status("Code execution completed with errors.")
+        else:
+            self.update_status("Running...")
 
     def save_and_run_python_code(self):
         code = self.code_entry.get("1.0", "end-1c")
@@ -109,6 +120,9 @@ class GUI:
             messagebox.showwarning("Empty Code", "Please enter some code before running.")
             return
         self.update_status("Running code...")
+        self.result_text.config(state=tk.NORMAL)
+        self.result_text.delete(1.0, tk.END)
+        self.result_text.config(state=tk.DISABLED)
         self.code_runner.run_code(code, self.update_result_text)
 
     def update_result_text(self, message: str, state: str):
@@ -122,6 +136,14 @@ class GUI:
             self.update_status("Code execution completed with errors.")
         else:
             self.update_status("Ready")
+
+    def create_status_bar(self):
+        self.status_bar = tk.Label(self.root, text="Ready", bd=1, relief=tk.SUNKEN, anchor=tk.W)
+        self.status_bar.pack(side=tk.BOTTOM, fill=tk.X)
+
+    def update_status(self, message):
+        self.status_bar.config(text=message)
+        self.root.update_idletasks()
 
     def list_python_scripts(self):
         scripts_window = Toplevel(self.root)

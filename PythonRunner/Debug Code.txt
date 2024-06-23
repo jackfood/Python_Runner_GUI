@@ -1,0 +1,29 @@
+import os
+
+# Define paths
+source_directory = r'D:\Python\~PythonRunner\Scripts\PythonRunner'
+destination_file = r'C:\Users\Peter-Susan\Desktop\collation.txt'
+
+# Initialize the content variable
+collated_content = ""
+
+# Iterate over all files in the source directory
+for filename in os.listdir(source_directory):
+    # Check if the file is a Python file
+    if filename.endswith('.py'):
+        # Construct the full path to the file
+        file_path = os.path.join(source_directory, filename)
+        
+        # Read the content of the file
+        with open(file_path, 'r', encoding='utf-8') as file:
+            content = file.read()
+        
+        # Append the filename and its content to the collated_content string
+        collated_content += f"{filename}:\n[Content inside]\n{content}\n\n"
+
+# Write the collated content to the destination file
+with open(destination_file, 'w', encoding='utf-8') as file:
+    file.write(collated_content)
+
+print(f"Collation complete. File saved to {destination_file}")
+

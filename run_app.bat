@@ -1,3 +1,2 @@
 @echo off
-python run_app.py
-pause
+start /min cmd /c "python run_app.py"
